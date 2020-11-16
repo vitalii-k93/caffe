@@ -9,6 +9,12 @@ function(Download_MKLDNN)
   		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		  OUTPUT_VARIABLE MKLDNN_COMMIT)
 
+  #--Workaround for Ubuntu 20: Remove tests/benchdnn/
+  set(MKLDNN_SOURCE_TEST_BENCHDNN_DIR ${MKLDNN_SOURCE_DIR}/tests/benchdnn/)
+  set(MKLDNN_SOURCE_TEST_BENCHDNN_DIR_RM rm -rf ${MKLDNN_SOURCE_TEST_BENCHDNN_DIR})
+  set(MKLDNN_SOURCE_TEST_BENCHDNN_DIR_RECREATE_1 mkdir ${MKLDNN_SOURCE_TEST_BENCHDNN_DIR})
+  set(MKLDNN_SOURCE_TEST_BENCHDNN_DIR_RECREATE_2 touch ${MKLDNN_SOURCE_TEST_BENCHDNN_DIR}/CMakeLists.txt)
+
   include(ProcessorCount)
   ProcessorCount(NCORE)
   if(NOT NCORE EQUAL 0)
@@ -22,12 +28,16 @@ function(Download_MKLDNN)
 #--Download step
                       GIT_REPOSITORY https://github.com/01org/mkl-dnn.git
 		      GIT_TAG ${MKLDNN_COMMIT}
+#--Workaround for Ubuntu 20: Remove tests/benchdnn/
+                      CONFIGURE_COMMAND ${MKLDNN_SOURCE_TEST_BENCHDNN_DIR_RM}
+                      COMMAND ${MKLDNN_SOURCE_TEST_BENCHDNN_DIR_RECREATE_1}
+                      COMMAND ${MKLDNN_SOURCE_TEST_BENCHDNN_DIR_RECREATE_2}
 #--Build step
                       BINARY_DIR ${MKLDNN_BUILD_DIR}
                       BUILD_COMMAND cmake ${MKLDNN_SOURCE_DIR}
 #--Install step
                       INSTALL_DIR ${MKLDNN_INSTALL_DIR}
-                      INSTALL_COMMAND make install -j${NCORE}
+                      INSTALL_COMMAND make install
                       LOG_CONFIGURE 1
                       LOG_BUILD 1
                       LOG_INSTALL 1

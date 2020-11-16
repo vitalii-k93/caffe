@@ -116,6 +116,9 @@ endif()
 add_definitions(-DGTEST_USE_OWN_TR1_TUPLE)
 
 # ---[ Warnings
+if(UNIX OR APPLE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error") # -Wno-error=deprecated-copy, -Wno-error=misleading-indentation
+endif(UNIX OR APPLE)
 caffe_warnings_disable(CMAKE_CXX_FLAGS -Wno-sign-compare -Wno-uninitialized)
 
 # ---[ Config generation
